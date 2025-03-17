@@ -17,14 +17,14 @@ rootProject.allprojects {
         google()
         jcenter()
     }
-    // v8+ gradle fix
-    subprojects {
-        afterEvaluate { project ->
-            if (project.hasProperty('android')) {
-                project.android {
-                    if (namespace == null) {
-                        namespace project.group
-                    }
+}
+
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                if (namespace == null) {
+                    namespace project.group
                 }
             }
         }
@@ -43,9 +43,4 @@ android {
     lintOptions {
         disable 'InvalidPackage'
     }
-}
-
-
-dependencies {
-//    implementation 'com.github.judemanutd:autostarter:1.1.0'
 }
