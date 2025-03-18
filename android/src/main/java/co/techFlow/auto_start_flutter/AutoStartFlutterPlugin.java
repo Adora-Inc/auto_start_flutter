@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.Uri;
+import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 import androidx.annotation.NonNull;
@@ -90,7 +92,11 @@ public class AutoStartFlutterPlugin
                 result.notImplemented();
             }
         } catch (Exception e) {
-            Log.e("AutoStartFlutterPlugin", "Error in method call: " + e.getMessage(), e);
+            Log.e(
+                "AutoStartFlutterPlugin",
+                "Error in method call: " + e.getMessage(),
+                e
+            );
             result.error("ERROR", e.getMessage(), e.toString());
         }
     }
@@ -100,17 +106,42 @@ public class AutoStartFlutterPlugin
         channel.setMethodCallHandler(null);
     }
 
+    /**
+     * Opens battery optimization settings for the app package
+     * @return true if succeeded, false otherwise
+     */
+    private boolean openBatteryOptimizationSettings() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + context.getPackageName()));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                
+                List<ResolveInfo> list = context.getPackageManager()
+                    .queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+                
+                if (list.size() > 0) {
+                    context.startActivity(intent);
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            Log.e("AutoStartFlutterPlugin", "Error opening battery optimization for package: " + e.getMessage(), e);
+        }
+        return false;
+    }
     private boolean addAutoStartup() {
         try {
             if (context == null) {
                 Log.e("AutoStartFlutterPlugin", "Context is null");
                 return false;
             }
-            
+
             Intent intent = new Intent();
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             String manufacturer = android.os.Build.MANUFACTURER;
-            
+
             if ("xiaomi".equalsIgnoreCase(manufacturer)) {
                 intent.setComponent(
                     new ComponentName(
@@ -210,7 +241,10 @@ public class AutoStartFlutterPlugin
                     )
                 );
             } else {
-                Log.w("AutoStartFlutterPlugin", "Unsupported manufacturer: " + manufacturer);
+                Log.w(
+                    "AutoStartFlutterPlugin",
+                    "Unsupported manufacturer: " + manufacturer
+                );
                 return false;
             }
 
@@ -220,16 +254,65 @@ public class AutoStartFlutterPlugin
                     intent,
                     PackageManager.MATCH_DEFAULT_ONLY
                 );
-                
-            if (list.size() > 0) {
-                context.startActivity(intent);
-                return true;
-            } else {
-                Log.w("AutoStartFlutterPlugin", "No matching activity found for manufacturer: " + manufacturer);
-                return false;
-            }
-        } catch (Exception e) {
-            Log.e("AutoStartFlutterPlugin", "Error opening auto-start settings: " + e.getMessage(), e);
+
+                if (list.size() > 0) {
+                    context.startActivity(intent);
+                    return true;
+                } else {
+                    Log.w("AutoStartFlutterPlugin", "No matching activity found for manufacturer: " + manufacturer);
+                    
+                    // Try with alternative approaches based on manufacturer
+                    if ("realme".equalsIgnoreCase(manufacturer) || "oppo".equalsIgnoreCase(manufacturer)) {
+                        try {
+                            // Try alternative OPPO/Realme path
+                            intent = new Intent();
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            intent.setComponent(new ComponentName(
+                                "com.coloros.oppoguardelf",
+                                "com.coloros.powermanager.fuelgaue.PowerConsumptionActivity"
+                            ));
+                            list = context.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+                            if (list.size() > 0) {
+                                context.startActivity(intent);
+                                return true;
+                            }
+                            
+                            // Try general battery settings
+                            intent = new Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(intent);
+                            return true;
+                        } catch (Exception e) {
+                            Log.e("AutoStartFlutterPlugin", "Error with fallback intent: " + e.getMessage(), e);
+                        }
+                    } else {
+                        try {
+                            // For other manufacturers, try to open battery optimization settings
+                            intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(intent);
+                            return true;
+                        } catch (Exception e) {
+                            Log.e("AutoStartFlutterPlugin", "Error opening battery optimization settings: " + e.getMessage(), e);
+                        }
+                    }
+                    return false;
+                }                } else {
+                        // Try to open app-specific battery optimization settings first
+                        if (openBatteryOptimizationSettings()) {
+                            return true;
+                        }
+                        
+                        try {
+                            // For other manufacturers, try to open general battery optimization settings
+                            intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(intent);
+                            return true;
+                        } catch (Exception e) {
+                            Log.e("AutoStartFlutterPlugin", "Error opening battery optimization settings: " + e.getMessage(), e);
+                        }
+                    }
             return false;
         }
     }
