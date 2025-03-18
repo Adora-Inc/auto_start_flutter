@@ -33,11 +33,6 @@ public class AutoStartFlutterPlugin
             flutterPluginBinding.getApplicationContext(),
             flutterPluginBinding.getBinaryMessenger()
         );
-        channel = new MethodChannel(
-            flutterPluginBinding.getBinaryMessenger(),
-            "com.techflow.co/auto_start_flutter"
-        );
-        channel.setMethodCallHandler(this);
     }
 
     private void onAttach(
@@ -54,43 +49,49 @@ public class AutoStartFlutterPlugin
 
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-        if (call.method.equals("permit-auto-start")) {
-            addAutoStartup();
-        } else if (call.method.equals("isAutoStartPermission")) {
-            String manufacturer = android.os.Build.MANUFACTURER;
-            if ("xiaomi".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("poco".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("redmi".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("letv".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("oppo".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("vivo".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("letv".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("honor".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("huawei".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("samsung".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("oneplus".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("nokia".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("asus".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("realme".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
+        try {
+            if (call.method.equals("permit-auto-start")) {
+                boolean success = addAutoStartup();
+                result.success(success);
+            } else if (call.method.equals("isAutoStartPermission")) {
+                String manufacturer = android.os.Build.MANUFACTURER;
+                if ("xiaomi".equalsIgnoreCase(manufacturer)) {
+                    result.success(true);
+                } else if ("poco".equalsIgnoreCase(manufacturer)) {
+                    result.success(true);
+                } else if ("redmi".equalsIgnoreCase(manufacturer)) {
+                    result.success(true);
+                } else if ("letv".equalsIgnoreCase(manufacturer)) {
+                    result.success(true);
+                } else if ("oppo".equalsIgnoreCase(manufacturer)) {
+                    result.success(true);
+                } else if ("vivo".equalsIgnoreCase(manufacturer)) {
+                    result.success(true);
+                } else if ("letv".equalsIgnoreCase(manufacturer)) {
+                    result.success(true);
+                } else if ("honor".equalsIgnoreCase(manufacturer)) {
+                    result.success(true);
+                } else if ("huawei".equalsIgnoreCase(manufacturer)) {
+                    result.success(true);
+                } else if ("samsung".equalsIgnoreCase(manufacturer)) {
+                    result.success(true);
+                } else if ("oneplus".equalsIgnoreCase(manufacturer)) {
+                    result.success(true);
+                } else if ("nokia".equalsIgnoreCase(manufacturer)) {
+                    result.success(true);
+                } else if ("asus".equalsIgnoreCase(manufacturer)) {
+                    result.success(true);
+                } else if ("realme".equalsIgnoreCase(manufacturer)) {
+                    result.success(true);
+                } else {
+                    result.success(false);
+                }
             } else {
-                result.success(false);
+                result.notImplemented();
             }
-        } else {
-            result.notImplemented();
+        } catch (Exception e) {
+            Log.e("AutoStartFlutterPlugin", "Error in method call: " + e.getMessage(), e);
+            result.error("ERROR", e.getMessage(), e.toString());
         }
     }
 
@@ -99,11 +100,17 @@ public class AutoStartFlutterPlugin
         channel.setMethodCallHandler(null);
     }
 
-    private void addAutoStartup() {
+    private boolean addAutoStartup() {
         try {
+            if (context == null) {
+                Log.e("AutoStartFlutterPlugin", "Context is null");
+                return false;
+            }
+            
             Intent intent = new Intent();
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             String manufacturer = android.os.Build.MANUFACTURER;
+            
             if ("xiaomi".equalsIgnoreCase(manufacturer)) {
                 intent.setComponent(
                     new ComponentName(
@@ -202,6 +209,9 @@ public class AutoStartFlutterPlugin
                         "com.coloros.safecenter.permission.startup.StartupAppListActivity"
                     )
                 );
+            } else {
+                Log.w("AutoStartFlutterPlugin", "Unsupported manufacturer: " + manufacturer);
+                return false;
             }
 
             List<ResolveInfo> list = context
@@ -210,11 +220,17 @@ public class AutoStartFlutterPlugin
                     intent,
                     PackageManager.MATCH_DEFAULT_ONLY
                 );
+                
             if (list.size() > 0) {
                 context.startActivity(intent);
+                return true;
+            } else {
+                Log.w("AutoStartFlutterPlugin", "No matching activity found for manufacturer: " + manufacturer);
+                return false;
             }
         } catch (Exception e) {
-            Log.e("exc", String.valueOf(e));
+            Log.e("AutoStartFlutterPlugin", "Error opening auto-start settings: " + e.getMessage(), e);
+            return false;
         }
     }
 }
