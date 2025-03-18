@@ -209,16 +209,9 @@ public class AutoStartFlutterPlugin
                     )
                 );
             } else if ("realme".equalsIgnoreCase(manufacturer)) {
-                intent.setComponent(
-                    new ComponentName(
-                        "com.android.settings",
-                        "com.android.settings.SubSettings"
-                    )
+                intent.setAction(
+                    Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
                 );
-                // intent.putExtra(
-                //     ":settings:show_fragment",
-                //     "com.coloros.safecenter.permission.startup.StartupAppListActivity"
-                // );
             }
 
             List<ResolveInfo> list = context
