@@ -198,8 +198,8 @@ public class AutoStartFlutterPlugin
             } else if ("realme".equalsIgnoreCase(manufacturer)) {
                 intent.setComponent(
                     new ComponentName(
-                        "com.coloros.safecenter",
-                        "com.coloros.safecenter.permission.startup.StartupAppListActivity"
+                        "com.oplus.battery",
+                        "com.oplus.startupapp.view.StartupAppListActivity"
                     )
                 );
             }
