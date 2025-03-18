@@ -209,11 +209,16 @@ public class AutoStartFlutterPlugin
                     )
                 );
             } else if ("realme".equalsIgnoreCase(manufacturer)) {
-                intent.setComponent(
-                    new ComponentName(
-                        "com.android.settings",
-                        "com.oplus.settings.feature.homepage.OplusSettingsHomepageActivity"
-                    )
+                String packageName = context.getPackageName();
+                intent = new Intent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                );
+                intent.setData(Uri.parse("package:" + packageName));
+
+                Log.d(
+                    TAG,
+                    "Realme device detected - opening app details for package: " +
+                    packageName
                 );
             }
 
