@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.provider.Settings;
 import android.util.Log;
 import androidx.annotation.NonNull;
@@ -210,19 +209,16 @@ public class AutoStartFlutterPlugin
                     )
                 );
             } else if ("realme".equalsIgnoreCase(manufacturer)) {
-                String packageName = context.getPackageName();
-                intent = new Intent(
-                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                intent.setComponent(
+                    new ComponentName(
+                        "com.android.settings",
+                        "com.android.settings.SubSettings"
+                    )
                 );
-                intent.setData(Uri.parse("package:" + packageName));
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // Add this line
-
-                // Log the package name and intent for debugging
-                Log.d(
-                    TAG,
-                    "Realme device detected - opening app details for package: " +
-                    packageName
-                );
+                // intent.putExtra(
+                //     ":settings:show_fragment",
+                //     "com.coloros.safecenter.permission.startup.StartupAppListActivity"
+                // );
             }
 
             List<ResolveInfo> list = context
