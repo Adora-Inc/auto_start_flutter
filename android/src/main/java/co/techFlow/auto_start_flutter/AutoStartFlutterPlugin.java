@@ -21,7 +21,8 @@ import java.util.*;
 /** AutoStartFlutterPlugin */
 public class AutoStartFlutterPlugin
     implements FlutterPlugin, MethodCallHandler {
-        private static final String TAG = "AutoStartFlutterPlugin";
+
+    private static final String TAG = "AutoStartFlutterPlugin";
 
     private MethodChannel channel;
     private Context context;
@@ -62,7 +63,11 @@ public class AutoStartFlutterPlugin
             addAutoStartup();
         } else if (call.method.equals("isAutoStartPermission")) {
             String manufacturer = android.os.Build.MANUFACTURER;
-            Log.d(TAG, "Checking auto start permission for manufacturer: " + manufacturer);
+            Log.d(
+                TAG,
+                "Checking auto start permission for manufacturer: " +
+                manufacturer
+            );
             if ("xiaomi".equalsIgnoreCase(manufacturer)) {
                 result.success(true);
             } else if ("poco".equalsIgnoreCase(manufacturer)) {
@@ -206,8 +211,8 @@ public class AutoStartFlutterPlugin
             } else if ("realme".equalsIgnoreCase(manufacturer)) {
                 intent.setComponent(
                     new ComponentName(
-                        "com.oplus.battery",
-                        "com.oplus.startupapp.view.StartupAppListActivity"
+                        "com.android.settings",
+                        "com.oplus.settings.feature.homepage.OplusSettingsHomepageActivity"
                     )
                 );
             }
@@ -218,13 +223,18 @@ public class AutoStartFlutterPlugin
                     intent,
                     PackageManager.MATCH_DEFAULT_ONLY
                 );
-                Log.d(TAG, "Found " + list.size() + " activities that can handle the intent");
+            Log.d(
+                TAG,
+                "Found " +
+                list.size() +
+                " activities that can handle the intent"
+            );
             if (list.size() > 0) {
                 context.startActivity(intent);
                 Log.d(TAG, "Starting auto start permission activity");
             }
-            } catch (Exception e) {
-                Log.e(TAG, "Error when trying to start auto startup settings", e);
-            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error when trying to start auto startup settings", e);
+        }
     }
 }
