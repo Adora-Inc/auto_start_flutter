@@ -215,7 +215,9 @@ public class AutoStartFlutterPlugin
                     Settings.ACTION_APPLICATION_DETAILS_SETTINGS
                 );
                 intent.setData(Uri.parse("package:" + packageName));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // Add this line
 
+                // Log the package name and intent for debugging
                 Log.d(
                     TAG,
                     "Realme device detected - opening app details for package: " +
