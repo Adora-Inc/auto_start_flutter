@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.net.Uri;
-import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 import androidx.annotation.NonNull;
@@ -23,6 +21,7 @@ import java.util.*;
 /** AutoStartFlutterPlugin */
 public class AutoStartFlutterPlugin
     implements FlutterPlugin, MethodCallHandler {
+        private static final String TAG = "AutoStartFlutterPlugin";
 
     private MethodChannel channel;
     private Context context;
@@ -31,16 +30,23 @@ public class AutoStartFlutterPlugin
     public void onAttachedToEngine(
         @NonNull FlutterPluginBinding flutterPluginBinding
     ) {
+        Log.d(TAG, "Plugin being attached to engine");
         onAttach(
             flutterPluginBinding.getApplicationContext(),
             flutterPluginBinding.getBinaryMessenger()
         );
+        channel = new MethodChannel(
+            flutterPluginBinding.getBinaryMessenger(),
+            "com.techflow.co/auto_start_flutter"
+        );
+        channel.setMethodCallHandler(this);
     }
 
     private void onAttach(
         Context applicationContext,
         BinaryMessenger messenger
     ) {
+        Log.d(TAG, "onAttach called with context");
         this.context = applicationContext;
         channel = new MethodChannel(
             messenger,
@@ -51,97 +57,61 @@ public class AutoStartFlutterPlugin
 
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-        try {
-            if (call.method.equals("permit-auto-start")) {
-                boolean success = addAutoStartup();
-                result.success(success);
-            } else if (call.method.equals("isAutoStartPermission")) {
-                String manufacturer = android.os.Build.MANUFACTURER;
-                if ("xiaomi".equalsIgnoreCase(manufacturer)) {
-                    result.success(true);
-                } else if ("poco".equalsIgnoreCase(manufacturer)) {
-                    result.success(true);
-                } else if ("redmi".equalsIgnoreCase(manufacturer)) {
-                    result.success(true);
-                } else if ("letv".equalsIgnoreCase(manufacturer)) {
-                    result.success(true);
-                } else if ("oppo".equalsIgnoreCase(manufacturer)) {
-                    result.success(true);
-                } else if ("vivo".equalsIgnoreCase(manufacturer)) {
-                    result.success(true);
-                } else if ("letv".equalsIgnoreCase(manufacturer)) {
-                    result.success(true);
-                } else if ("honor".equalsIgnoreCase(manufacturer)) {
-                    result.success(true);
-                } else if ("huawei".equalsIgnoreCase(manufacturer)) {
-                    result.success(true);
-                } else if ("samsung".equalsIgnoreCase(manufacturer)) {
-                    result.success(true);
-                } else if ("oneplus".equalsIgnoreCase(manufacturer)) {
-                    result.success(true);
-                } else if ("nokia".equalsIgnoreCase(manufacturer)) {
-                    result.success(true);
-                } else if ("asus".equalsIgnoreCase(manufacturer)) {
-                    result.success(true);
-                } else if ("realme".equalsIgnoreCase(manufacturer)) {
-                    result.success(true);
-                } else {
-                    result.success(false);
-                }
+        Log.d(TAG, "Method called: " + call.method);
+        if (call.method.equals("permit-auto-start")) {
+            addAutoStartup();
+        } else if (call.method.equals("isAutoStartPermission")) {
+            String manufacturer = android.os.Build.MANUFACTURER;
+            Log.d(TAG, "Checking auto start permission for manufacturer: " + manufacturer);
+            if ("xiaomi".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("poco".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("redmi".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("letv".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("oppo".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("vivo".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("letv".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("honor".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("huawei".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("samsung".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("oneplus".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("nokia".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("asus".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("realme".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
             } else {
-                result.notImplemented();
+                result.success(false);
             }
-        } catch (Exception e) {
-            Log.e(
-                "AutoStartFlutterPlugin",
-                "Error in method call: " + e.getMessage(),
-                e
-            );
-            result.error("ERROR", e.getMessage(), e.toString());
+        } else {
+            result.notImplemented();
         }
     }
 
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        Log.d(TAG, "Plugin being detached from engine");
         channel.setMethodCallHandler(null);
     }
 
-    /**
-     * Opens battery optimization settings for the app package
-     * @return true if succeeded, false otherwise
-     */
-    private boolean openBatteryOptimizationSettings() {
+    private void addAutoStartup() {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                Intent intent = new Intent();
-                intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                intent.setData(Uri.parse("package:" + context.getPackageName()));
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                
-                List<ResolveInfo> list = context.getPackageManager()
-                    .queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-                
-                if (list.size() > 0) {
-                    context.startActivity(intent);
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            Log.e("AutoStartFlutterPlugin", "Error opening battery optimization for package: " + e.getMessage(), e);
-        }
-        return false;
-    }
-    private boolean addAutoStartup() {
-        try {
-            if (context == null) {
-                Log.e("AutoStartFlutterPlugin", "Context is null");
-                return false;
-            }
-
+            Log.d(TAG, "Attempting to add app to auto startup");
             Intent intent = new Intent();
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             String manufacturer = android.os.Build.MANUFACTURER;
-
+            Log.d(TAG, "Device manufacturer: " + manufacturer);
             if ("xiaomi".equalsIgnoreCase(manufacturer)) {
                 intent.setComponent(
                     new ComponentName(
@@ -236,16 +206,10 @@ public class AutoStartFlutterPlugin
             } else if ("realme".equalsIgnoreCase(manufacturer)) {
                 intent.setComponent(
                     new ComponentName(
-                        "com.coloros.safecenter",
-                        "com.coloros.safecenter.permission.startup.StartupAppListActivity"
+                        "com.oplus.battery",
+                        "com.oplus.startupapp.view.StartupAppListActivity"
                     )
                 );
-            } else {
-                Log.w(
-                    "AutoStartFlutterPlugin",
-                    "Unsupported manufacturer: " + manufacturer
-                );
-                return false;
             }
 
             List<ResolveInfo> list = context
@@ -254,66 +218,13 @@ public class AutoStartFlutterPlugin
                     intent,
                     PackageManager.MATCH_DEFAULT_ONLY
                 );
-
-                if (list.size() > 0) {
-                    context.startActivity(intent);
-                    return true;
-                } else {
-                    Log.w("AutoStartFlutterPlugin", "No matching activity found for manufacturer: " + manufacturer);
-                    
-                    // Try with alternative approaches based on manufacturer
-                    if ("realme".equalsIgnoreCase(manufacturer) || "oppo".equalsIgnoreCase(manufacturer)) {
-                        try {
-                            // Try alternative OPPO/Realme path
-                            intent = new Intent();
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            intent.setComponent(new ComponentName(
-                                "com.coloros.oppoguardelf",
-                                "com.coloros.powermanager.fuelgaue.PowerConsumptionActivity"
-                            ));
-                            list = context.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-                            if (list.size() > 0) {
-                                context.startActivity(intent);
-                                return true;
-                            }
-                            
-                            // Try general battery settings
-                            intent = new Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(intent);
-                            return true;
-                        } catch (Exception e) {
-                            Log.e("AutoStartFlutterPlugin", "Error with fallback intent: " + e.getMessage(), e);
-                        }
-                    } else {
-                        try {
-                            // For other manufacturers, try to open battery optimization settings
-                            intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(intent);
-                            return true;
-                        } catch (Exception e) {
-                            Log.e("AutoStartFlutterPlugin", "Error opening battery optimization settings: " + e.getMessage(), e);
-                        }
-                    }
-                    return false;
-                }                } else {
-                        // Try to open app-specific battery optimization settings first
-                        if (openBatteryOptimizationSettings()) {
-                            return true;
-                        }
-                        
-                        try {
-                            // For other manufacturers, try to open general battery optimization settings
-                            intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(intent);
-                            return true;
-                        } catch (Exception e) {
-                            Log.e("AutoStartFlutterPlugin", "Error opening battery optimization settings: " + e.getMessage(), e);
-                        }
-                    }
-            return false;
-        }
+                Log.d(TAG, "Found " + list.size() + " activities that can handle the intent");
+            if (list.size() > 0) {
+                context.startActivity(intent);
+                Log.d(TAG, "Starting auto start permission activity");
+            }
+            } catch (Exception e) {
+                Log.e(TAG, "Error when trying to start auto startup settings", e);
+            }
     }
 }
