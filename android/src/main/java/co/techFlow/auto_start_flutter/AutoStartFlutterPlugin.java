@@ -74,27 +74,9 @@ public class AutoStartFlutterPlugin
                 result.success(true);
             } else if ("redmi".equalsIgnoreCase(manufacturer)) {
                 result.success(true);
-            } else if ("letv".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("oppo".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("vivo".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("letv".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("honor".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("huawei".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
             } else if ("samsung".equalsIgnoreCase(manufacturer)) {
                 result.success(true);
             } else if ("oneplus".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("nokia".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("asus".equalsIgnoreCase(manufacturer)) {
-                result.success(true);
-            } else if ("realme".equalsIgnoreCase(manufacturer)) {
                 result.success(true);
             } else {
                 result.success(false);
