@@ -110,11 +110,11 @@ public class AutoStartFlutterPlugin
     }
 
     private boolean addAutoStartup() {
+        String manufacturer = android.os.Build.MANUFACTURER;
         try {
             Log.d(TAG, "Attempting to add app to auto startup");
             Intent intent = new Intent();
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            String manufacturer = android.os.Build.MANUFACTURER;
             Log.d(TAG, "Device manufacturer: " + manufacturer);
             if ("xiaomi".equalsIgnoreCase(manufacturer)) {
                 intent.setComponent(
