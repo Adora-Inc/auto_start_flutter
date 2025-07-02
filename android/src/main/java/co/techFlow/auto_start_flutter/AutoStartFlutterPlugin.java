@@ -60,7 +60,8 @@ public class AutoStartFlutterPlugin
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
         Log.d(TAG, "Method called: " + call.method);
         if (call.method.equals("permit-auto-start")) {
-            addAutoStartup();
+            boolean success = addAutoStartup();
+            result.success(success);
         } else if (call.method.equals("isAutoStartPermission")) {
             String manufacturer = android.os.Build.MANUFACTURER;
             Log.d(
@@ -74,9 +75,25 @@ public class AutoStartFlutterPlugin
                 result.success(true);
             } else if ("redmi".equalsIgnoreCase(manufacturer)) {
                 result.success(true);
+            } else if ("letv".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("oppo".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("vivo".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("honor".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("huawei".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
             } else if ("samsung".equalsIgnoreCase(manufacturer)) {
                 result.success(true);
             } else if ("oneplus".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("nokia".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("asus".equalsIgnoreCase(manufacturer)) {
+                result.success(true);
+            } else if ("realme".equalsIgnoreCase(manufacturer)) {
                 result.success(true);
             } else {
                 result.success(false);
@@ -92,7 +109,7 @@ public class AutoStartFlutterPlugin
         channel.setMethodCallHandler(null);
     }
 
-    private void addAutoStartup() {
+    private boolean addAutoStartup() {
         try {
             Log.d(TAG, "Attempting to add app to auto startup");
             Intent intent = new Intent();
@@ -211,9 +228,23 @@ public class AutoStartFlutterPlugin
             if (list.size() > 0) {
                 context.startActivity(intent);
                 Log.d(TAG, "Starting auto start permission activity");
+                return true;
+            } else {
+                Log.w(
+                    TAG,
+                    "No activity found to handle auto start intent for manufacturer: " +
+                    manufacturer
+                );
+                return true; // Return true even if intent doesn't exist
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error when trying to start auto startup settings", e);
+            Log.e(
+                TAG,
+                "Error when trying to start auto startup settings for manufacturer: " +
+                manufacturer,
+                e
+            );
+            return true; // Return true even if intent fails
         }
     }
 }
