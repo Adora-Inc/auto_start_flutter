@@ -20,9 +20,9 @@ Future<bool?> get isAutoStartAvailable async {
 Future<bool> getAutoStartPermission() async {
   try {
     final bool? result = await _channel.invokeMethod("permit-auto-start");
-    return result ?? false;
+    return result ?? true;
   } catch (e) {
     print(e);
-    return false;
+    return true;
   }
 }
